@@ -105,7 +105,7 @@ const Hero = () => {
             className="flex items-center justify-center gap-6"
           >
             <a
-              href="https://github.com/your-github-username"
+              href="https://github.com/muthui7504"
               target="_blank"
               rel="noopener noreferrer"
               className="text-muted-foreground hover:text-primary transition-colors"
@@ -114,7 +114,7 @@ const Hero = () => {
               <Github size={22} />
             </a>
             <a
-              href="https://linkedin.com/in/your-linkedin-username"
+              href="https://www.linkedin.com/in/simon-muthui-2308bb260/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-muted-foreground hover:text-primary transition-colors"
@@ -123,7 +123,7 @@ const Hero = () => {
               <Linkedin size={22} />
             </a>
             <a
-              href="mailto:smuthui7504@gmail.com"
+              href="mailto:smutua7504@gmail.com"
               className="text-muted-foreground hover:text-primary transition-colors"
               aria-label="Email"
             >

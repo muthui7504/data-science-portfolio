@@ -1,5 +1,4 @@
-import { motion } from "framer-motion";
-import { useInView } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { useRef, useState } from "react";
 import { Mail, MapPin, Github, Linkedin, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,16 +16,29 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const formData = new FormData(e.currentTarget);
 
-    toast({
-      title: "Message sent!",
-      description: "Thank you for reaching out. I'll get back to you soon.",
-    });
+    try {
+      await fetch("/", {
+        method: "POST",
+        body: formData,
+      });
 
-    setIsSubmitting(false);
-    (e.target as HTMLFormElement).reset();
+      toast({
+        title: "Message sent!",
+        description: "Thank you for reaching out. I'll get back to you soon.",
+      });
+
+      e.currentTarget.reset();
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -60,19 +72,17 @@ const Contact = () => {
                 Let's Build Something Impactful
               </h3>
               <p className="text-muted-foreground leading-relaxed mb-6">
-                I'm open to remote opportunities, contract work, and full-time positions. Whether it’s
-                data science, AI/ML projects, or software development, I’d love to collaborate and
-                bring ideas to life.
+                I'm open to remote opportunities, contract work, and full-time positions.
+                Whether it’s data science, AI/ML projects, or software development, I’d
+                love to collaborate.
               </p>
             </div>
 
-            {/* Status Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 text-green-400 text-sm font-medium">
               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
               Available for Opportunities
             </div>
 
-            {/* Contact Details */}
             <div className="space-y-4">
               <a
                 href="mailto:smutua7504@gmail.com"
@@ -98,13 +108,12 @@ const Contact = () => {
               </div>
             </div>
 
-            {/* Social Links */}
             <div className="flex gap-4">
               <a
                 href="https://github.com/muthui7504"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 glass-card hover:border-primary/30 transition-all text-muted-foreground hover:text-foreground"
+                className="flex items-center gap-2 px-4 py-2 glass-card hover:border-primary/30 transition-all"
               >
                 <Github size={18} />
                 <span className="text-sm font-medium">GitHub</span>
@@ -113,7 +122,7 @@ const Contact = () => {
                 href="https://www.linkedin.com/in/simon-muthui-2308bb260/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 glass-card hover:border-primary/30 transition-all text-muted-foreground hover:text-foreground"
+                className="flex items-center gap-2 px-4 py-2 glass-card hover:border-primary/30 transition-all"
               >
                 <Linkedin size={18} />
                 <span className="text-sm font-medium">LinkedIn</span>
@@ -127,73 +136,41 @@ const Contact = () => {
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <form onSubmit={handleSubmit} className="glass-card p-8 space-y-6">
+            <form
+              name="contact"
+              method="POST"
+              data-netlify="true"
+              onSubmit={handleSubmit}
+              className="glass-card p-8 space-y-6"
+            >
+              {/* Required for Netlify */}
+              <input type="hidden" name="form-name" value="contact" />
+
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <label htmlFor="name" className="text-sm font-medium">
-                    Name
-                  </label>
-                  <Input
-                    id="name"
-                    name="name"
-                    required
-                    placeholder="Your name"
-                    className="bg-secondary/50 border-border focus:border-primary"
-                  />
+                  <label htmlFor="name">Name</label>
+                  <Input id="name" name="name" required />
                 </div>
                 <div className="space-y-2">
-                  <label htmlFor="email" className="text-sm font-medium">
-                    Email
-                  </label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    required
-                    placeholder="your@email.com"
-                    className="bg-secondary/50 border-border focus:border-primary"
-                  />
+                  <label htmlFor="email">Email</label>
+                  <Input id="email" name="email" type="email" required />
                 </div>
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="subject" className="text-sm font-medium">
-                  Subject
-                </label>
-                <Input
-                  id="subject"
-                  name="subject"
-                  required
-                  placeholder="What's this about?"
-                  className="bg-secondary/50 border-border focus:border-primary"
-                />
+                <label htmlFor="subject">Subject</label>
+                <Input id="subject" name="subject" required />
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="message" className="text-sm font-medium">
-                  Message
-                </label>
-                <Textarea
-                  id="message"
-                  name="message"
-                  required
-                  placeholder="Tell me about your project or opportunity..."
-                  rows={5}
-                  className="bg-secondary/50 border-border focus:border-primary resize-none"
-                />
+                <label htmlFor="message">Message</label>
+                <Textarea id="message" name="message" rows={5} required />
               </div>
 
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 glow-effect"
-              >
-                {isSubmitting ? (
-                  "Sending..."
-                ) : (
+              <Button type="submit" disabled={isSubmitting} className="w-full">
+                {isSubmitting ? "Sending..." : (
                   <>
-                    Send Message
-                    <Send size={16} className="ml-2" />
+                    Send Message <Send size={16} className="ml-2" />
                   </>
                 )}
               </Button>
