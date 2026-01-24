@@ -1,10 +1,12 @@
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
+import { useInView } from "framer-motion";
 import { useRef, useState } from "react";
 import { Mail, MapPin, Github, Linkedin, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import emailjs from "emailjs-com";
 
 const Contact = () => {
   const ref = useRef(null);
@@ -16,24 +18,39 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const formData = new FormData(e.currentTarget);
+    const form = e.target as HTMLFormElement;
 
     try {
-      await fetch("/", {
-        method: "POST",
-        body: formData,
-      });
+      // 1️⃣ Send notification to you
+      await emailjs.sendForm(
+        "service_szgvrkl",      // Your EmailJS Service ID
+        "template_juhtew1",     // Contact Us template (you receive the message)
+        form,
+        "xg5ZZkfG8r3VQTmU9"     // Your Public Key
+      );
+      console.log("Notification sent to you ✅");
+
+      // 2️⃣ Send auto-reply to visitor
+      await emailjs.sendForm(
+        "service_szgvrkl",
+        "template_5k7541g",     // Auto-Reply template (sent to visitor)
+        form,
+        "xg5ZZkfG8r3VQTmU9"
+      );
+      console.log("Auto-reply sent to visitor ✅");
 
       toast({
         title: "Message sent!",
-        description: "Thank you for reaching out. I'll get back to you soon.",
+        description: "Your message has been delivered. Thank you for reaching out!",
       });
 
-      e.currentTarget.reset();
-    } catch (error) {
+      form.reset();
+    } catch (error: any) {
+      console.error("EmailJS error:", error);
       toast({
-        title: "Error",
-        description: "Something went wrong. Please try again.",
+        title: "Failed to send message",
+        description:
+          error.text || "Something went wrong. Please check your keys or network.",
         variant: "destructive",
       });
     } finally {
@@ -72,17 +89,19 @@ const Contact = () => {
                 Let's Build Something Impactful
               </h3>
               <p className="text-muted-foreground leading-relaxed mb-6">
-                I'm open to remote opportunities, contract work, and full-time positions.
-                Whether it’s data science, AI/ML projects, or software development, I’d
-                love to collaborate.
+                I'm open to remote opportunities, contract work, and full-time positions. Whether it’s
+                data science, AI/ML projects, or software development, I’d love to collaborate and
+                bring ideas to life.
               </p>
             </div>
 
+            {/* Status Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 text-green-400 text-sm font-medium">
               <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
               Available for Opportunities
             </div>
 
+            {/* Contact Details */}
             <div className="space-y-4">
               <a
                 href="mailto:smutua7504@gmail.com"
@@ -108,12 +127,13 @@ const Contact = () => {
               </div>
             </div>
 
+            {/* Social Links */}
             <div className="flex gap-4">
               <a
                 href="https://github.com/muthui7504"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 glass-card hover:border-primary/30 transition-all"
+                className="flex items-center gap-2 px-4 py-2 glass-card hover:border-primary/30 transition-all text-muted-foreground hover:text-foreground"
               >
                 <Github size={18} />
                 <span className="text-sm font-medium">GitHub</span>
@@ -122,7 +142,7 @@ const Contact = () => {
                 href="https://www.linkedin.com/in/simon-muthui-2308bb260/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 glass-card hover:border-primary/30 transition-all"
+                className="flex items-center gap-2 px-4 py-2 glass-card hover:border-primary/30 transition-all text-muted-foreground hover:text-foreground"
               >
                 <Linkedin size={18} />
                 <span className="text-sm font-medium">LinkedIn</span>
@@ -136,43 +156,23 @@ const Contact = () => {
             animate={isInView ? { opacity: 1, x: 0 } : {}}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-            <form
-              name="contact"
-              method="POST"
-              data-netlify="true"
-              onSubmit={handleSubmit}
-              className="glass-card p-8 space-y-6"
-            >
-              {/* Required for Netlify */}
-              <input type="hidden" name="form-name" value="contact" />
-
+            <form onSubmit={handleSubmit} className="glass-card p-8 space-y-6">
               <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label htmlFor="name">Name</label>
-                  <Input id="name" name="name" required />
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="email">Email</label>
-                  <Input id="email" name="email" type="email" required />
-                </div>
+                <Input name="name" required placeholder="Your name" />
+                <Input name="email" type="email" required placeholder="your@email.com" />
               </div>
 
-              <div className="space-y-2">
-                <label htmlFor="subject">Subject</label>
-                <Input id="subject" name="subject" required />
-              </div>
+              <Input name="subject" required placeholder="What's this about?" />
 
-              <div className="space-y-2">
-                <label htmlFor="message">Message</label>
-                <Textarea id="message" name="message" rows={5} required />
-              </div>
+              <Textarea
+                name="message"
+                required
+                placeholder="Tell me about your project or opportunity..."
+                rows={5}
+              />
 
               <Button type="submit" disabled={isSubmitting} className="w-full">
-                {isSubmitting ? "Sending..." : (
-                  <>
-                    Send Message <Send size={16} className="ml-2" />
-                  </>
-                )}
+                {isSubmitting ? "Sending..." : <>Send Message <Send size={16} className="ml-2" /></>}
               </Button>
             </form>
           </motion.div>
